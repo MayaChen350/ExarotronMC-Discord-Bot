@@ -20,6 +20,13 @@ dependencies {
 tasks.test {
     useJUnitPlatform()
 }
+
+tasks.named<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar>("shadowJar") {
+    manifest {
+        attributes["Main-Class"] = "io.github.mayachen350.trickMcDiscordBot.MainAppKt"
+    }
+}
+
 kotlin {
     jvmToolchain(17)
 }
