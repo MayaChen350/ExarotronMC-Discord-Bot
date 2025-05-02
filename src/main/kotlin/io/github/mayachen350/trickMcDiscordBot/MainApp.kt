@@ -1,6 +1,7 @@
 package io.github.mayachen350.trickMcDiscordBot
 
 import com.exaroton.api.ExarotonClient
+import com.exaroton.api.server.Server
 import dev.kord.common.entity.Permission
 import dev.kord.common.entity.Permissions
 import dev.kord.core.event.guild.MemberJoinEvent
@@ -11,6 +12,12 @@ import me.jakejmattson.discordkt.dsl.bot
 import me.jakejmattson.discordkt.util.intentsOf
 
 val client: ExarotonClient by lazy { ExarotonClient(Dotenv.load().get("EXAROTRON_KEY")) }
+
+val mcServer: Server by lazy {
+    client.getServer(Dotenv.load().get("EXAROTRON_SERVER_ID")).apply {
+        fetch().join()
+    }
+}
 
 @OptIn(PrivilegedIntent::class)
 fun main() {
