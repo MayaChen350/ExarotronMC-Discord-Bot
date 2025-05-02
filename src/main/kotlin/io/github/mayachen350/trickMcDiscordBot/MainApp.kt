@@ -10,7 +10,6 @@ import dev.kord.gateway.PrivilegedIntent
 import dev.kord.gateway.builder.PresenceBuilder
 import io.github.cdimascio.dotenv.Dotenv
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import me.jakejmattson.discordkt.dsl.bot
 import me.jakejmattson.discordkt.util.intentsOf
 
@@ -26,52 +25,52 @@ val mcServer: Server
 
 @OptIn(PrivilegedIntent::class)
 fun main() {
-    runBlocking {
-        val token = Dotenv.load().get("BOT_TOKEN")
-        bot(token) {
-            configure {
-                //Remove a command invocation message after the command is executed.
-                deleteInvocation = false
+    val token = Dotenv.load().get("BOT_TOKEN")
+    bot(token) {
+        configure {
+            //Remove a command invocation message after the command is executed.
+            deleteInvocation = false
 
-                //An emoji added when a command is invoked (use 'null' to disable this).
-                commandReaction = null
+            //An emoji added when a command is invoked (use 'null' to disable this).
+            commandReaction = null
 
-                dualRegistry = false
+            dualRegistry = false
 
-                //Configure the Discord Gateway intents for your bot.
-                intents.apply {
-                    plus(Intent.DirectMessages)
-                    plus(Intent.GuildMembers)
-                    plus(intentsOf<MemberJoinEvent>())
-                }
-
-                defaultPermissions = Permissions {
-                    Permission.SendMessages
-                    Permission.ReadMessageHistory
-                    Permission.AddReactions
-                }
+            //Configure the Discord Gateway intents for your bot.
+            intents.apply {
+                plus(Intent.DirectMessages)
+                plus(Intent.GuildMembers)
+                plus(intentsOf<MemberJoinEvent>())
             }
 
-            presence {
-                // When is there going to be custom status for bot in the same time available
+            defaultPermissions = Permissions {
+                Permission.SendMessages
+                Permission.ReadMessageHistory
+                Permission.AddReactions
+            }
+        }
+
+        presence {
+            // When is there going to be custom status for bot in the same time available
 //            state = "He's been playing checkers while I'm farming potatoes"
 
-                defaultPresence()
-            }
+            defaultPresence()
+        }
 
-            onStart {
-                println("Bot started!")
+        onStart {
+            println("Bot started!")
 
-                editPresence = {
-                    launch {
-                        kord.editPresence {
-                            defaultPresence()
-                        }
+            editPresence = {
+                kord.launch {
+                    kord.editPresence {
+                        defaultPresence()
                     }
                 }
-
-                mcServer.addStatusSubscriber(ServerSubscriber)
             }
+
+            mcServer.addStatusSubscriber(ServerSubscriber)
+
+            CreditCountSubscriber.pollPeriodicallyForCreditCount(kord)
         }
     }
 }
