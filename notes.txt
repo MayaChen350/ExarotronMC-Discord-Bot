@@ -1,0 +1,5 @@
+Bot track credits and ping Tricks if it falls below 10
+
+Bot name is potato_king
+
+API lib: https://github.com/exaroton/java-exaroton-api
