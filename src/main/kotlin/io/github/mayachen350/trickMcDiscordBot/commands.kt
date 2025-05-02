@@ -24,7 +24,7 @@ fun mcServerCommands() = commands("Minecraft Server") {
     slash("player_count", "Get the current number of players playing in the server right now!") {
         execute {
             val playerCount = mcServer.playerInfo.count
-            respondPublic("There are currently `$playerCount` ${if (playerCount == 1) "player" else "players"} online!")
+            respondPublic("There are currently `$playerCount` ${if (playerCount <= 1) "player" else "players"} online!")
         }
     }
 }

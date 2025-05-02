@@ -7,47 +7,81 @@ import dev.kord.common.entity.Permissions
 import dev.kord.core.event.guild.MemberJoinEvent
 import dev.kord.gateway.Intent
 import dev.kord.gateway.PrivilegedIntent
+import dev.kord.gateway.builder.PresenceBuilder
 import io.github.cdimascio.dotenv.Dotenv
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import me.jakejmattson.discordkt.dsl.bot
 import me.jakejmattson.discordkt.util.intentsOf
 
 val client: ExarotonClient by lazy { ExarotonClient(Dotenv.load().get("EXAROTRON_KEY")) }
 
-val mcServer: Server by lazy {
-    client.getServer(Dotenv.load().get("EXAROTRON_SERVER_ID")).apply {
-        fetch().join()
-    }
-}
+lateinit var editPresence: (PresenceBuilder.() -> Unit) -> Unit
+
+val mcServer: Server
+    get() =
+        client.getServer(Dotenv.load().get("EXAROTRON_SERVER_ID")).apply {
+            fetch().join()
+        }
 
 @OptIn(PrivilegedIntent::class)
 fun main() {
-    val token = Dotenv.load().get("BOT_TOKEN")
-    bot(token) {
-        configure {
-            //Remove a command invocation message after the command is executed.
-            deleteInvocation = false
+    runBlocking {
+        val token = Dotenv.load().get("BOT_TOKEN")
+        bot(token) {
+            configure {
+                //Remove a command invocation message after the command is executed.
+                deleteInvocation = false
 
-            //An emoji added when a command is invoked (use 'null' to disable this).
-            commandReaction = null
+                //An emoji added when a command is invoked (use 'null' to disable this).
+                commandReaction = null
 
-            dualRegistry = false
+                dualRegistry = false
 
-            //Configure the Discord Gateway intents for your bot.
-            intents.apply {
-                plus(Intent.DirectMessages)
-                plus(Intent.GuildMembers)
-                plus(intentsOf<MemberJoinEvent>())
+                //Configure the Discord Gateway intents for your bot.
+                intents.apply {
+                    plus(Intent.DirectMessages)
+                    plus(Intent.GuildMembers)
+                    plus(intentsOf<MemberJoinEvent>())
+                }
+
+                defaultPermissions = Permissions {
+                    Permission.SendMessages
+                    Permission.ReadMessageHistory
+                    Permission.AddReactions
+                }
             }
 
-            defaultPermissions = Permissions {
-                Permission.SendMessages
-                Permission.ReadMessageHistory
-                Permission.AddReactions
-            }
-        }
+            presence {
+                // When is there going to be custom status for bot in the same time available
+//            state = "He's been playing checkers while I'm farming potatoes"
 
-        onStart {
-            println("Bot started!")
+                defaultPresence()
+            }
+
+            onStart {
+                println("Bot started!")
+
+                editPresence = {
+                    launch {
+                        kord.editPresence {
+                            defaultPresence()
+                        }
+                    }
+                }
+
+                mcServer.addStatusSubscriber(ServerSubscriber)
+            }
         }
     }
+}
+
+fun PresenceBuilder.defaultPresence() {
+    playing(mcServer.address)
+    val playerCount = mcServer.playerInfo.count
+    state =
+        "${mcServer.status.name.toLowerCase().capitalize()}" +
+                if (mcServer.status.name == "ONLINE")
+                    " - $playerCount ${if (playerCount <= 1) "player" else "players"} online"
+                else ""
 }
