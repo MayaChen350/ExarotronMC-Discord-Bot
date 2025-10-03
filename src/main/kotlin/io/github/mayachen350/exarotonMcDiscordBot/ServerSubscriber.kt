@@ -1,4 +1,4 @@
-package io.github.mayachen350.trickMcDiscordBot
+package io.github.mayachen350.exarotonMcDiscordBot
 
 import com.exaroton.api.server.Server
 import com.exaroton.api.ws.subscriber.ServerStatusSubscriber

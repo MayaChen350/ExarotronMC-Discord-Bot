@@ -1,4 +1,4 @@
-package io.github.mayachen350.trickMcDiscordBot
+package io.github.mayachen350.exarotonMcDiscordBot
 
 import com.exaroton.api.ExarotonClient
 import com.exaroton.api.server.Server
@@ -51,9 +51,6 @@ fun main() {
         }
 
         presence {
-            // When is there going to be custom status for bot in the same time available
-//            state = "He's been playing checkers while I'm farming potatoes"
-
             defaultPresence()
         }
 

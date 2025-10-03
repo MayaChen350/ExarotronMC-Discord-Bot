@@ -1,4 +1,4 @@
-package io.github.mayachen350.trickMcDiscordBot
+package io.github.mayachen350.exarotonMcDiscordBot
 
 import dev.kord.core.Kord
 import io.github.cdimascio.dotenv.Dotenv
